@@ -7,10 +7,12 @@ use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
 use Asantibanez\LaravelEloquentStateMachines\Models\StateHistory;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Validator;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
+use UnitEnum;
 
 abstract class StateMachine
 {
@@ -29,7 +31,7 @@ abstract class StateMachine
     {
         $field = $this->field;
 
-        return $this->model->$field;
+        return $this->normalizeEnumCasting($this->model->$field);
     }
 
     public function history(): MorphMany
@@ -69,7 +71,7 @@ abstract class StateMachine
     {
         $availableTransitions = $this->transitions()[$from] ?? [];
 
-        return collect($availableTransitions)->contains($to);
+        return collect($availableTransitions)->map(fn ($state) => $this->normalizeEnumCasting($state))->contains($to);
     }
 
     public function pendingTransitions(): MorphMany
@@ -82,14 +84,22 @@ abstract class StateMachine
         return $this->pendingTransitions()->notApplied()->exists();
     }
 
+    public function normalizeEnumCasting($state)
+    {
+        return $state instanceof UnitEnum ? $state->value : $state;
+    }
+
     /**
      * @param  null|mixed  $responsible
      *
      * @throws TransitionNotAllowedException
      * @throws ValidationException
      */
-    public function transitionTo(string|null $from, string $to, array $customProperties = [], null|Model $responsible = null): void
+    public function transitionTo(string|null|UnitEnum $from, string $to, array $customProperties = [], null|Model $responsible = null): void
     {
+        $from = $this->normalizeEnumCasting($from);
+        $to = $this->normalizeEnumCasting($to);
+
         if ($to === $this->currentState()) {
             return;
         }
@@ -141,6 +151,9 @@ abstract class StateMachine
      */
     public function postponeTransitionTo($from, $to, Carbon $when, $customProperties = [], $responsible = null): null|PendingTransition
     {
+        $from = $this->normalizeEnumCasting($from);
+        $to = $this->normalizeEnumCasting($to);
+
         if ($to === $this->currentState()) {
             return null;
         }

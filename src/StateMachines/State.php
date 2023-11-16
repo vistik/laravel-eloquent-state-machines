@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
+use UnitEnum;
 
 /**
  * Class State
@@ -18,11 +19,11 @@ use Illuminate\Support\Collection;
  */
 class State
 {
-    private null|string $state;
+    private null|string|UnitEnum $state;
 
     private StateMachine $stateMachine;
 
-    public function __construct(null|string $state, StateMachine $stateMachine)
+    public function __construct(null|string|UnitEnum $state, StateMachine $stateMachine)
     {
         $this->state = $state;
         $this->stateMachine = $stateMachine;
@@ -30,7 +31,7 @@ class State
 
     public function getState(): null|string
     {
-        return $this->state;
+        return $this->normalizeEnumCasting($this->state);
     }
 
     public function getStateMachine(): StateMachine
@@ -40,7 +41,7 @@ class State
 
     public function is($state): bool
     {
-        return $this->state === $state;
+        return $this->getState() === $this->normalizeEnumCasting($state);
     }
 
     public function isNot($state): bool
@@ -80,7 +81,7 @@ class State
 
     public function canBe($state): bool
     {
-        return $this->stateMachine->canBe(from: $this->state, to: $state);
+        return $this->stateMachine->canBe($this->getState(), $this->normalizeEnumCasting($state));
     }
 
     public function pendingTransitions(): MorphMany
@@ -97,22 +98,25 @@ class State
     {
         $this->stateMachine->transitionTo(
             from: $this->state,
-            to: $state,
+            to: $this->normalizeEnumCasting($state),
             customProperties: $customProperties,
             responsible: $responsible
         );
     }
 
+    public function normalizeEnumCasting($state)
+    {
+        return $this->stateMachine->normalizeEnumCasting($state);
+    }
+
     /**
-     * @param  null  $responsible
-     *
      * @throws TransitionNotAllowedException
      */
-    public function postponeTransitionTo(string $state, Carbon $when, array $customProperties = [], null|Model $responsible = null): null|PendingTransition
+    public function postponeTransitionTo(string|UnitEnum $state, Carbon $when, array $customProperties = [], null|Model $responsible = null): null|PendingTransition
     {
         return $this->stateMachine->postponeTransitionTo(
             from: $this->state,
-            to: $state,
+            to: $this->normalizeEnumCasting($state),
             when: $when,
             customProperties: $customProperties,
             responsible: $responsible
@@ -121,7 +125,7 @@ class State
 
     public function latest(): null|StateHistory
     {
-        return $this->snapshotWhen($this->state);
+        return $this->snapshotWhen($this->getState());
     }
 
     public function getCustomProperty($key): string

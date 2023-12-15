@@ -31,7 +31,7 @@ abstract class StateMachine
     {
         $field = $this->field;
 
-        return $this->normalizeEnumCasting($this->model->$field);
+        return $this->normalizeCasting($this->model->$field);
     }
 
     public function history(): MorphMany
@@ -71,7 +71,7 @@ abstract class StateMachine
     {
         $availableTransitions = $this->transitions()[$from] ?? [];
 
-        return collect($availableTransitions)->map(fn ($state) => $this->normalizeEnumCasting($state))->contains($to);
+        return collect($availableTransitions)->map(fn ($state) => $this->normalizeCasting($state))->contains($to);
     }
 
     public function pendingTransitions(): MorphMany
@@ -84,7 +84,7 @@ abstract class StateMachine
         return $this->pendingTransitions()->notApplied()->exists();
     }
 
-    public function normalizeEnumCasting($state)
+    public function normalizeCasting($state)
     {
         return $state instanceof UnitEnum ? $state->value : $state;
     }
@@ -97,8 +97,8 @@ abstract class StateMachine
      */
     public function transitionTo(string|null|UnitEnum $from, string $to, array $customProperties = [], null|Model $responsible = null): void
     {
-        $from = $this->normalizeEnumCasting($from);
-        $to = $this->normalizeEnumCasting($to);
+        $from = $this->normalizeCasting($from);
+        $to = $this->normalizeCasting($to);
 
         if ($to === $this->currentState()) {
             return;
@@ -151,8 +151,8 @@ abstract class StateMachine
      */
     public function postponeTransitionTo($from, $to, Carbon $when, $customProperties = [], $responsible = null): null|PendingTransition
     {
-        $from = $this->normalizeEnumCasting($from);
-        $to = $this->normalizeEnumCasting($to);
+        $from = $this->normalizeCasting($from);
+        $to = $this->normalizeCasting($to);
 
         if ($to === $this->currentState()) {
             return null;

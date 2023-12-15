@@ -31,7 +31,7 @@ class State
 
     public function getState(): null|string
     {
-        return $this->normalizeEnumCasting($this->state);
+        return $this->normalizeCasting($this->state);
     }
 
     public function getStateMachine(): StateMachine
@@ -41,7 +41,7 @@ class State
 
     public function is($state): bool
     {
-        return $this->getState() === $this->normalizeEnumCasting($state);
+        return $this->getState() === $this->normalizeCasting($state);
     }
 
     public function isNot($state): bool
@@ -81,7 +81,7 @@ class State
 
     public function canBe($state): bool
     {
-        return $this->stateMachine->canBe($this->getState(), $this->normalizeEnumCasting($state));
+        return $this->stateMachine->canBe($this->getState(), $this->normalizeCasting($state));
     }
 
     public function pendingTransitions(): MorphMany
@@ -98,15 +98,15 @@ class State
     {
         $this->stateMachine->transitionTo(
             from: $this->state,
-            to: $this->normalizeEnumCasting($state),
+            to: $this->normalizeCasting($state),
             customProperties: $customProperties,
             responsible: $responsible
         );
     }
 
-    public function normalizeEnumCasting($state)
+    public function normalizeCasting($state)
     {
-        return $this->stateMachine->normalizeEnumCasting($state);
+        return $this->stateMachine->normalizeCasting($state);
     }
 
     /**
@@ -116,7 +116,7 @@ class State
     {
         return $this->stateMachine->postponeTransitionTo(
             from: $this->state,
-            to: $this->normalizeEnumCasting($state),
+            to: $this->normalizeCasting($state),
             when: $when,
             customProperties: $customProperties,
             responsible: $responsible

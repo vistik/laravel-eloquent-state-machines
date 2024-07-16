@@ -47,7 +47,7 @@ abstract class StateMachine
         return $this->history()->to($state)->count();
     }
 
-    public function whenWas($state): ?Carbon
+    public function whenWas($state): null|Carbon
     {
         $stateHistory = $this->snapshotWhen($state);
 
@@ -55,7 +55,7 @@ abstract class StateMachine
 
     }
 
-    public function snapshotWhen(string $state): ?StateHistory
+    public function snapshotWhen(string $state): null|StateHistory
     {
         return $this->history()->to($state)->latest('id')->first();
     }
@@ -83,13 +83,12 @@ abstract class StateMachine
     }
 
     /**
-     * @param  array  $customProperties
      * @param  null|mixed  $responsible
      *
      * @throws TransitionNotAllowedException
      * @throws ValidationException
      */
-    public function transitionTo(string|null $from, string $to, array $customProperties = [], Model $responsible = null): void
+    public function transitionTo(string|null $from, string $to, array $customProperties = [], null|Model $responsible = null): void
     {
         if ($to === $this->currentState()) {
             return;
@@ -140,7 +139,7 @@ abstract class StateMachine
      *
      * @throws TransitionNotAllowedException
      */
-    public function postponeTransitionTo($from, $to, Carbon $when, $customProperties = [], $responsible = null): ?PendingTransition
+    public function postponeTransitionTo($from, $to, Carbon $when, $customProperties = [], $responsible = null): null|PendingTransition
     {
         if ($to === $this->currentState()) {
             return null;
@@ -169,11 +168,11 @@ abstract class StateMachine
 
     abstract public function transitions(): array;
 
-    abstract public function defaultState(): ?string;
+    abstract public function defaultState(): null|string;
 
     abstract public function recordHistory(): bool;
 
-    public function validatorForTransition($from, $to, $model): ?Validator
+    public function validatorForTransition($from, $to, $model): null|Validator
     {
         return null;
     }

@@ -18,7 +18,7 @@ class TestCase extends BaseTestCase
 
         $this->withFactories(__DIR__.'/../database/factories');
 
-        $this->withFactories(__DIR__ . '/database/Factories');
+        $this->withFactories(__DIR__.'/database/Factories');
     }
 
     protected function getPackageProviders($app)

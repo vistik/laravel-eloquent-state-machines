@@ -3,7 +3,6 @@
 namespace Asantibanez\LaravelEloquentStateMachines\Exceptions;
 
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 
 class TransitionNotAllowedException extends Exception
 {

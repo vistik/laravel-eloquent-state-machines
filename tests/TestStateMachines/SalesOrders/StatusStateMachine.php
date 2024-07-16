@@ -20,7 +20,7 @@ class StatusStateMachine extends StateMachine
         ];
     }
 
-    public function defaultState(): ?string
+    public function defaultState(): null|string
     {
         return 'pending';
     }

@@ -18,17 +18,17 @@ use Illuminate\Support\Collection;
  */
 class State
 {
-    private ?string $state;
+    private null|string $state;
 
     private StateMachine $stateMachine;
 
-    public function __construct(?string $state, StateMachine $stateMachine)
+    public function __construct(null|string $state, StateMachine $stateMachine)
     {
         $this->state = $state;
         $this->stateMachine = $stateMachine;
     }
 
-    public function getState(): ?string
+    public function getState(): null|string
     {
         return $this->state;
     }
@@ -58,12 +58,12 @@ class State
         return $this->stateMachine->timesWas($state);
     }
 
-    public function whenWas($state): ?Carbon
+    public function whenWas($state): null|Carbon
     {
         return $this->stateMachine->whenWas($state);
     }
 
-    public function snapshotWhen($state): ?StateHistory
+    public function snapshotWhen($state): null|StateHistory
     {
         return $this->stateMachine->snapshotWhen($state);
     }
@@ -104,12 +104,11 @@ class State
     }
 
     /**
-     * @param  array  $customProperties
      * @param  null  $responsible
      *
      * @throws TransitionNotAllowedException
      */
-    public function postponeTransitionTo(string $state, Carbon $when, array $customProperties = [], Model $responsible = null): ?PendingTransition
+    public function postponeTransitionTo(string $state, Carbon $when, array $customProperties = [], null|Model $responsible = null): null|PendingTransition
     {
         return $this->stateMachine->postponeTransitionTo(
             from: $this->state,
@@ -120,7 +119,7 @@ class State
         );
     }
 
-    public function latest(): ?StateHistory
+    public function latest(): null|StateHistory
     {
         return $this->snapshotWhen($this->state);
     }

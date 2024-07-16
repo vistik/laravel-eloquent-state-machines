@@ -24,12 +24,12 @@ class FulfillmentStateMachine extends StateMachine
         ];
     }
 
-    public function defaultState(): ?string
+    public function defaultState(): null|string
     {
         return null;
     }
 
-    public function validatorForTransition($from, $to, $model): ?Validator
+    public function validatorForTransition($from, $to, $model): null|Validator
     {
         if ($from === null && $to === 'pending') {
             return ValidatorFacade::make([

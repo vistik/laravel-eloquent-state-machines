@@ -97,7 +97,7 @@ class StateHistory extends Model
         $query->from($from)->to($to);
     }
 
-    public function scopeWithCustomProperty(Builder $query, string $key, string $operator, ?string $value = null)
+    public function scopeWithCustomProperty(Builder $query, string $key, string $operator, null|string $value = null)
     {
         $query->where("custom_properties->{$key}", $operator, $value);
     }

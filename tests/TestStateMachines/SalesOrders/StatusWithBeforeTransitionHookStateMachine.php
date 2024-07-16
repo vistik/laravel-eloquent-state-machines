@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders;
-
 
 use Asantibanez\LaravelEloquentStateMachines\StateMachines\StateMachine;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs\BeforeTransitionJob;
@@ -31,16 +29,16 @@ class StatusWithBeforeTransitionHookStateMachine extends StateMachine
     {
         return [
             'pending' => [
-                function($to, $model) {
+                function ($to, $model) {
                     $model->total = 100;
                 },
-                function($to, $model) {
+                function ($to, $model) {
                     $model->notes = 'Notes updated';
                 },
                 function ($to, $model) {
                     BeforeTransitionJob::dispatch();
-                }
-            ]
+                },
+            ],
         ];
     }
 }

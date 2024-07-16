@@ -2,19 +2,13 @@
 
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\Feature;
 
-use Asantibanez\LaravelEloquentStateMachines\Exceptions\TransitionNotAllowedException;
 use Asantibanez\LaravelEloquentStateMachines\Jobs\PendingTransitionExecutor;
 use Asantibanez\LaravelEloquentStateMachines\Jobs\PendingTransitionsDispatcher;
-use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
-use Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs\StartSalesOrderFulfillmentJob;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestCase;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrder;
-use Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders\FulfillmentStateMachine;
-use Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders\StatusStateMachine;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Validation\ValidationException;
 use Queue;
 
 class PendingTransitionsDispatcherTest extends TestCase
@@ -41,7 +35,7 @@ class PendingTransitionsDispatcherTest extends TestCase
         $this->assertTrue($salesOrder->status()->hasPendingTransitions());
 
         //Act
-        PendingTransitionsDispatcher::dispatchNow();
+        (new PendingTransitionsDispatcher)->handle();
 
         //Assert
         $salesOrder->refresh();
@@ -50,6 +44,7 @@ class PendingTransitionsDispatcherTest extends TestCase
 
         Queue::assertPushed(PendingTransitionExecutor::class, function ($job) use ($pendingTransition) {
             $this->assertEquals($pendingTransition->id, $job->pendingTransition->id);
+
             return true;
         });
     }
@@ -65,7 +60,7 @@ class PendingTransitionsDispatcherTest extends TestCase
         $this->assertTrue($salesOrder->status()->hasPendingTransitions());
 
         //Act
-        PendingTransitionsDispatcher::dispatchNow();
+        (new PendingTransitionsDispatcher)->handle();
 
         //Assert
         $salesOrder->refresh();

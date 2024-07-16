@@ -8,7 +8,6 @@ use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrderWithFrom
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrderWithToAny;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Queue;
 
 class AnyTransitionTest extends TestCase
 {

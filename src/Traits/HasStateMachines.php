@@ -10,10 +10,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Javoscript\MacroableModels\Facades\MacroableModels;
 
-
 /**
  * Trait HasStateMachines
- * @package Asantibanez\LaravelEloquentStateMachines\Traits
+ *
  * @property array $stateMachines
  */
 trait HasStateMachines
@@ -23,9 +22,10 @@ trait HasStateMachines
         $model = new static();
 
         collect($model->stateMachines)
-            ->each(function ($_, $field) use ($model) {
+            ->each(function ($_, $field) {
                 MacroableModels::addMacro(static::class, $field, function () use ($field) {
                     $stateMachine = new $this->stateMachines[$field]($field, $this);
+
                     return new State($this->{$stateMachine->field}, $stateMachine);
                 });
 
@@ -33,6 +33,7 @@ trait HasStateMachines
 
                 MacroableModels::addMacro(static::class, $camelField, function () use ($field) {
                     $stateMachine = new $this->stateMachines[$field]($field, $this);
+
                     return new State($this->{$stateMachine->field}, $stateMachine);
                 });
 
@@ -41,7 +42,7 @@ trait HasStateMachines
                 Builder::macro("whereHas{$studlyField}", function ($callable = null) use ($field) {
                     $model = $this->getModel();
 
-                    if (!method_exists($model, 'stateHistory')) {
+                    if (! method_exists($model, 'stateHistory')) {
                         return $this->newQuery();
                     }
 
@@ -50,6 +51,7 @@ trait HasStateMachines
                         if ($callable !== null) {
                             $callable($query);
                         }
+
                         return $query;
                     });
                 });
@@ -69,7 +71,7 @@ trait HasStateMachines
                         return;
                     }
 
-                    if (!$stateMachine->recordHistory()) {
+                    if (! $stateMachine->recordHistory()) {
                         return;
                     }
 
@@ -82,7 +84,7 @@ trait HasStateMachines
         });
     }
 
-    public function getChangedAttributes() : array
+    public function getChangedAttributes(): array
     {
         return collect($this->getDirty())
             ->mapWithKeys(function ($_, $attribute) {
@@ -133,7 +135,7 @@ trait HasStateMachines
         $this->stateHistory()->save($stateHistory);
     }
 
-    public function recordPendingTransition($field, $from, $to, $when, $customProperties = [], $responsible = null) : PendingTransition
+    public function recordPendingTransition($field, $from, $to, $when, $customProperties = [], $responsible = null): PendingTransition
     {
         /** @var PendingTransition $pendingTransition */
         $pendingTransition = PendingTransition::make([
@@ -141,7 +143,7 @@ trait HasStateMachines
             'from' => $from,
             'to' => $to,
             'transition_at' => $when,
-            'custom_properties' => $customProperties
+            'custom_properties' => $customProperties,
         ]);
 
         if ($responsible !== null) {

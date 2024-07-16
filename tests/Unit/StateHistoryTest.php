@@ -21,7 +21,7 @@ class StateHistoryTest extends TestCase
         $stateHistory = factory(StateHistory::class)->create([
             'custom_properties' => [
                 'comments' => $comments,
-            ]
+            ],
         ]);
 
         //Act
@@ -42,7 +42,7 @@ class StateHistoryTest extends TestCase
         ];
 
         $stateHistory = factory(StateHistory::class)->create([
-            'custom_properties' => $customProperties
+            'custom_properties' => $customProperties,
         ]);
 
         //Act

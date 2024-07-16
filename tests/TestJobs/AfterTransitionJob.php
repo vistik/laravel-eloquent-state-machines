@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs;
 
 use Illuminate\Bus\Queueable;

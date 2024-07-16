@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Jobs;
-
 
 use Asantibanez\LaravelEloquentStateMachines\Exceptions\InvalidStartingStateException;
 use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
@@ -14,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class PendingTransitionExecutor implements ShouldQueue
 {
-    use InteractsWithQueue, Queueable, Dispatchable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $pendingTransition;
 
@@ -34,11 +32,12 @@ class PendingTransitionExecutor implements ShouldQueue
 
         if ($model->$field()->isNot($from)) {
             $exception = new InvalidStartingStateException(
-                $expectedState = $from,
-                $actualState = $model->$field()->state()
+                expectedState: $from,
+                actualState: $model->$field()->getState()
             );
 
             $this->fail($exception);
+
             return;
         }
 

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders;
-
 
 use Asantibanez\LaravelEloquentStateMachines\StateMachines\StateMachine;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs\AfterTransitionJob;
@@ -31,18 +29,18 @@ class StatusWithAfterTransitionHookStateMachine extends StateMachine
     {
         return [
             'approved' => [
-                function($from, $model) {
+                function ($from, $model) {
                     $model->total = 200;
                     $model->save();
                 },
-                function($from, $model) {
+                function ($from, $model) {
                     $model->notes = 'after';
                     $model->save();
                 },
                 function ($from, $model) {
                     AfterTransitionJob::dispatch();
                 },
-            ]
+            ],
         ];
     }
 }

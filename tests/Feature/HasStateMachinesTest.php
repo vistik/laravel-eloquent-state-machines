@@ -5,7 +5,6 @@ namespace Asantibanez\LaravelEloquentStateMachines\Tests\Feature;
 use Asantibanez\LaravelEloquentStateMachines\Exceptions\TransitionNotAllowedException;
 use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestCase;
-use Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs\StartSalesOrderFulfillmentJob;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesManager;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrder;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders\FulfillmentStateMachine;
@@ -14,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Validation\ValidationException;
-use Queue;
 use Throwable;
 
 class HasStateMachinesTest extends TestCase
@@ -50,11 +48,11 @@ class HasStateMachinesTest extends TestCase
 
         //Assert
         $this->assertEquals($statusStateMachine->defaultState(), $salesOrder->status);
-        $this->assertEquals($statusStateMachine->defaultState(), $salesOrder->status()->state);
+        $this->assertEquals($statusStateMachine->defaultState(), $salesOrder->status()->getState());
         $this->assertEquals(1, $salesOrder->status()->history()->count());
 
         $this->assertEquals($fulfillmentStateMachine->defaultState(), $salesOrder->fulfillment);
-        $this->assertEquals($fulfillmentStateMachine->defaultState(), $salesOrder->fulfillment()->state);
+        $this->assertEquals($fulfillmentStateMachine->defaultState(), $salesOrder->fulfillment()->getState());
         $this->assertEquals(0, $salesOrder->fulfillment()->history()->count());
     }
 
@@ -288,7 +286,7 @@ class HasStateMachinesTest extends TestCase
         $comments = $this->faker->sentence;
 
         $salesOrder->status()->transitionTo('approved', [
-            'comments' => $comments
+            'comments' => $comments,
         ]);
 
         //Assert

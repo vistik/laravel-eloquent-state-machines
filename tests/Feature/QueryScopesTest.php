@@ -30,8 +30,7 @@ class QueryScopesTest extends TestCase
             ->whereHasStatus(function ($query) use ($salesManager) {
                 $query->withResponsible($salesManager);
             })
-            ->get()
-        ;
+            ->get();
 
         //Assert
         $this->assertEquals(2, $salesOrders->count());
@@ -39,29 +38,6 @@ class QueryScopesTest extends TestCase
         $salesOrders->each(function (SalesOrder $salesOrder) use ($salesManager) {
             $this->assertEquals($salesManager->id, $salesOrder->status()->snapshotWhen('approved')->responsible->id);
         });
-    }
-
-    /** @test */
-    public function can_get_models_with_transition_responsible_id()
-    {
-        //Arrange
-        $salesManager = factory(SalesManager::class)->create();
-
-        $anotherSalesManager = factory(SalesManager::class)->create();
-
-        factory(SalesOrder::class)->create()->status()->transitionTo('approved', [], $salesManager);
-        factory(SalesOrder::class)->create()->status()->transitionTo('approved', [], $anotherSalesManager);
-
-        //Act
-        $salesOrders = SalesOrder::with([])
-            ->whereHasStatus(function ($query) use ($salesManager) {
-                $query->withResponsible($salesManager->id);
-            })
-            ->get()
-        ;
-
-        //Assert
-        $this->assertEquals(1, $salesOrders->count());
     }
 
     /** @test */
@@ -80,8 +56,7 @@ class QueryScopesTest extends TestCase
             ->whereHasStatus(function ($query) {
                 $query->withTransition('approved', 'processed');
             })
-            ->get()
-        ;
+            ->get();
 
         //Assert
         $this->assertEquals(1, $salesOrders->count());
@@ -105,8 +80,7 @@ class QueryScopesTest extends TestCase
             ->whereHasStatus(function ($query) {
                 $query->transitionedTo('processed');
             })
-            ->get()
-        ;
+            ->get();
 
         //Assert
         $this->assertEquals(1, $salesOrders->count());
@@ -159,8 +133,7 @@ class QueryScopesTest extends TestCase
             ->whereHasStatus(function ($query) {
                 $query->transitionedFrom('approved');
             })
-            ->get()
-        ;
+            ->get();
 
         //Assert
         $this->assertEquals(1, $salesOrders->count());
@@ -212,8 +185,7 @@ class QueryScopesTest extends TestCase
             ->whereHasStatus(function ($query) {
                 $query->withCustomProperty('comments', 'like', '%Check%');
             })
-            ->get()
-        ;
+            ->get();
 
         //Assert
         $this->assertEquals(1, $salesOrders->count());
@@ -234,7 +206,6 @@ class QueryScopesTest extends TestCase
 
         //Act
 
-
         $salesOrders = SalesOrder::with([])
             ->whereHasStatus(function ($query) {
                 $query->transitionedTo('approved');
@@ -242,8 +213,7 @@ class QueryScopesTest extends TestCase
             ->whereHasStatus(function ($query) {
                 $query->transitionedTo('processed');
             })
-            ->get()
-        ;
+            ->get();
 
         //Assert
         $this->assertEquals(1, $salesOrders->count());

@@ -1,15 +1,15 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Exceptions;
-
 
 use Exception;
 
 class TransitionNotAllowedException extends Exception
 {
     protected $from;
+
     protected $to;
+
     protected $model;
 
     public function __construct($from, $to, $model)

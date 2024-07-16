@@ -44,7 +44,7 @@ class BeforeTransitionHookTest extends TestCase
         Queue::fake();
 
         $salesOrder = SalesOrderWithBeforeTransitionHook::create([
-            'status' => 'approved'
+            'status' => 'approved',
         ]);
 
         $this->assertNull($salesOrder->total);

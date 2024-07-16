@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\StateMachines;
 
 use Asantibanez\LaravelEloquentStateMachines\Exceptions\TransitionNotAllowedException;
@@ -10,42 +9,43 @@ use Carbon\Carbon;
 
 /**
  * Class State
- * @package Asantibanez\LaravelEloquentStateMachines\StateMachines
+ *
  * @property string $state
  * @property StateMachine $stateMachine
  */
 class State
 {
-    public $state;
-    public $stateMachine;
+    private ?string $state;
 
-    public function __construct($state, $stateMachine)
+    private StateMachine $stateMachine;
+
+    public function __construct(?string $state, StateMachine $stateMachine)
     {
         $this->state = $state;
         $this->stateMachine = $stateMachine;
     }
 
-    public function state()
+    public function getState(): ?string
     {
         return $this->state;
     }
 
-    public function stateMachine()
+    public function getStateMachine(): StateMachine
     {
         return $this->stateMachine;
     }
 
-    public function is($state)
+    public function is($state): bool
     {
         return $this->state === $state;
     }
 
-    public function isNot($state)
+    public function isNot($state): bool
     {
-        return !$this->is($state);
+        return ! $this->is($state);
     }
 
-    public function was($state)
+    public function was($state): bool
     {
         return $this->stateMachine->was($state);
     }
@@ -101,14 +101,12 @@ class State
     }
 
     /**
-     * @param $state
-     * @param Carbon $when
-     * @param array $customProperties
-     * @param null $responsible
-     * @return null|PendingTransition
+     * @param  array  $customProperties
+     * @param  null  $responsible
+     *
      * @throws TransitionNotAllowedException
      */
-    public function postponeTransitionTo($state, Carbon $when, $customProperties = [], $responsible = null) : ?PendingTransition
+    public function postponeTransitionTo($state, Carbon $when, $customProperties = [], $responsible = null): ?PendingTransition
     {
         return $this->stateMachine->postponeTransitionTo(
             $from = $this->state,
@@ -119,7 +117,7 @@ class State
         );
     }
 
-    public function latest() : ?StateHistory
+    public function latest(): ?StateHistory
     {
         return $this->snapshotWhen($this->state);
     }

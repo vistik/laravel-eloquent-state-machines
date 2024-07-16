@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders;
-
 
 use Asantibanez\LaravelEloquentStateMachines\StateMachines\StateMachine;
 

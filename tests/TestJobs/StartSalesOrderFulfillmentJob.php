@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs;
 
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrder;

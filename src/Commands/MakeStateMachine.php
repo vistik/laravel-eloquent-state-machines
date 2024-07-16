@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Commands;
-
 
 use Illuminate\Console\GeneratorCommand;
 
@@ -14,13 +12,13 @@ class MakeStateMachine extends GeneratorCommand
 
     protected $type = 'StateMachine';
 
-    protected function getStub()
+    protected function getStub(): string
     {
-        return __DIR__ . '/stubs/StateMachine.php.stub';
+        return __DIR__.'/stubs/StateMachine.php.stub';
     }
 
     protected function getDefaultNamespace($rootNamespace)
     {
-        return $rootNamespace . '\StateMachines';
+        return $rootNamespace.'\StateMachines';
     }
 }

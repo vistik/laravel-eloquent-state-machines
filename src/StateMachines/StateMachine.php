@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\StateMachines;
-
 
 use Asantibanez\LaravelEloquentStateMachines\Exceptions\TransitionNotAllowedException;
 use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
@@ -10,97 +8,93 @@ use Asantibanez\LaravelEloquentStateMachines\Models\StateHistory;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 abstract class StateMachine
 {
-    public $field;
-    public $model;
+    public string $field;
 
-    public function __construct($field, &$model)
+    public Model $model;
+
+    public function __construct(string $field, Model $model)
     {
         $this->field = $field;
 
         $this->model = $model;
     }
 
-    public function currentState()
+    public function currentState(): string|null
     {
         $field = $this->field;
 
         return $this->model->$field;
     }
 
-    public function history()
+    public function history(): MorphMany
     {
         return $this->model->stateHistory()->forField($this->field);
     }
 
-    public function was($state)
+    public function was($state): bool
     {
         return $this->history()->to($state)->exists();
     }
 
-    public function timesWas($state)
+    public function timesWas($state): int
     {
         return $this->history()->to($state)->count();
     }
 
-    public function whenWas($state) : ?Carbon
+    public function whenWas($state): null|Carbon
     {
         $stateHistory = $this->snapshotWhen($state);
 
-        if ($stateHistory === null) {
-            return null;
-        }
+        return $stateHistory?->created_at;
 
-        return $stateHistory->created_at;
     }
 
-    public function snapshotWhen($state) : ?StateHistory
+    public function snapshotWhen(string $state): null|StateHistory
     {
         return $this->history()->to($state)->latest('id')->first();
     }
 
-    public function snapshotsWhen($state) : Collection
+    public function snapshotsWhen($state): Collection
     {
         return $this->history()->to($state)->get();
     }
 
-    public function canBe($from, $to)
+    public function canBe($from, $to): bool
     {
         $availableTransitions = $this->transitions()[$from] ?? [];
 
         return collect($availableTransitions)->contains($to);
     }
 
-    public function pendingTransitions()
+    public function pendingTransitions(): MorphMany
     {
         return $this->model->pendingTransitions()->forField($this->field);
     }
 
-    public function hasPendingTransitions()
+    public function hasPendingTransitions(): bool
     {
         return $this->pendingTransitions()->notApplied()->exists();
     }
 
     /**
-     * @param $from
-     * @param $to
-     * @param array $customProperties
-     * @param null|mixed $responsible
+     * @param  null|mixed  $responsible
+     *
      * @throws TransitionNotAllowedException
      * @throws ValidationException
      */
-    public function transitionTo($from, $to, $customProperties = [], $responsible = null)
+    public function transitionTo(string|null $from, string $to, array $customProperties = [], null|Model $responsible = null): void
     {
         if ($to === $this->currentState()) {
             return;
         }
 
-        if (!$this->canBe($from, $to) && !$this->canBe($from, '*') && !$this->canBe('*', $to) && !$this->canBe('*', '*')) {
+        if (! $this->canBe($from, $to) && ! $this->canBe($from, '*') && ! $this->canBe('*', $to) && ! $this->canBe('*', '*')) {
             throw new TransitionNotAllowedException($from, $to, get_class($this->model));
         }
 
@@ -140,21 +134,18 @@ abstract class StateMachine
     }
 
     /**
-     * @param $from
-     * @param $to
-     * @param Carbon $when
-     * @param array $customProperties
-     * @param null $responsible
-     * @return null|PendingTransition
+     * @param  array  $customProperties
+     * @param  null  $responsible
+     *
      * @throws TransitionNotAllowedException
      */
-    public function postponeTransitionTo($from, $to, Carbon $when, $customProperties = [], $responsible = null) : ?PendingTransition
+    public function postponeTransitionTo($from, $to, Carbon $when, $customProperties = [], $responsible = null): null|PendingTransition
     {
         if ($to === $this->currentState()) {
             return null;
         }
 
-        if (!$this->canBe($from, $to)) {
+        if (! $this->canBe($from, $to)) {
             throw new TransitionNotAllowedException($from, $to, get_class($this->model));
         }
 
@@ -175,23 +166,24 @@ abstract class StateMachine
         $this->pendingTransitions()->delete();
     }
 
-    abstract public function transitions() : array;
+    abstract public function transitions(): array;
 
-    abstract public function defaultState() : ?string;
+    abstract public function defaultState(): null|string;
 
-    abstract public function recordHistory() : bool;
+    abstract public function recordHistory(): bool;
 
-    public function validatorForTransition($from, $to, $model): ?Validator
+    public function validatorForTransition($from, $to, $model): null|Validator
     {
         return null;
     }
 
-    public function afterTransitionHooks() : array
+    public function afterTransitionHooks(): array
     {
         return [];
     }
 
-    public function beforeTransitionHooks() : array {
+    public function beforeTransitionHooks(): array
+    {
         return [];
     }
 }

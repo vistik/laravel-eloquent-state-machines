@@ -6,13 +6,14 @@ use Asantibanez\LaravelEloquentStateMachines\Models\StateHistory;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 
 class StateHistoryTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
 
-    /** @test */
+    #[Test]
     public function can_get_custom_property()
     {
         //Arrange
@@ -21,7 +22,7 @@ class StateHistoryTest extends TestCase
         $stateHistory = factory(StateHistory::class)->create([
             'custom_properties' => [
                 'comments' => $comments,
-            ]
+            ],
         ]);
 
         //Act
@@ -31,7 +32,7 @@ class StateHistoryTest extends TestCase
         $this->assertEquals($comments, $result);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_all_custom_properties()
     {
         //Arrange
@@ -42,7 +43,7 @@ class StateHistoryTest extends TestCase
         ];
 
         $stateHistory = factory(StateHistory::class)->create([
-            'custom_properties' => $customProperties
+            'custom_properties' => $customProperties,
         ]);
 
         //Act

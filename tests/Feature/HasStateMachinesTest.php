@@ -5,7 +5,6 @@ namespace Asantibanez\LaravelEloquentStateMachines\Tests\Feature;
 use Asantibanez\LaravelEloquentStateMachines\Exceptions\TransitionNotAllowedException;
 use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestCase;
-use Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs\StartSalesOrderFulfillmentJob;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesManager;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrder;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders\FulfillmentStateMachine;
@@ -14,7 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Validation\ValidationException;
-use Queue;
+use PHPUnit\Framework\Attributes\Test;
 use Throwable;
 
 class HasStateMachinesTest extends TestCase
@@ -22,11 +21,11 @@ class HasStateMachinesTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    /** @test */
+    #[Test]
     public function can_configure_state_machines()
     {
         //Act
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         $this->assertEquals(StatusStateMachine::class, $salesOrder->stateMachines['status']);
         $this->assertEquals(FulfillmentStateMachine::class, $salesOrder->stateMachines['fulfillment']);
@@ -37,32 +36,31 @@ class HasStateMachinesTest extends TestCase
         $this->assertNotNull($salesOrder->fulfillment());
     }
 
-    /** @test */
+    #[Test]
     public function should_set_default_state_for_field()
     {
         //Arrange
-        $statusStateMachine = new StatusStateMachine('status', $salesOrder);
-
-        $fulfillmentStateMachine = new FulfillmentStateMachine('fulfillment', $salesOrder);
+        $salesOrder = SalesOrder::factory()->create();
 
         //Act
-        $salesOrder = factory(SalesOrder::class)->create();
+        $statusStateMachine = new StatusStateMachine('status', $salesOrder);
+        $fulfillmentStateMachine = new FulfillmentStateMachine('fulfillment', $salesOrder);
 
         //Assert
         $this->assertEquals($statusStateMachine->defaultState(), $salesOrder->status);
-        $this->assertEquals($statusStateMachine->defaultState(), $salesOrder->status()->state);
+        $this->assertEquals($statusStateMachine->defaultState(), $salesOrder->status()->getState());
         $this->assertEquals(1, $salesOrder->status()->history()->count());
 
         $this->assertEquals($fulfillmentStateMachine->defaultState(), $salesOrder->fulfillment);
-        $this->assertEquals($fulfillmentStateMachine->defaultState(), $salesOrder->fulfillment()->state);
+        $this->assertEquals($fulfillmentStateMachine->defaultState(), $salesOrder->fulfillment()->getState());
         $this->assertEquals(0, $salesOrder->fulfillment()->history()->count());
     }
 
-    /** @test */
+    #[Test]
     public function should_transition_to_next_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         $this->assertTrue($salesOrder->status()->is('pending'));
 
@@ -79,11 +77,11 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals('approved', $salesOrder->status);
     }
 
-    /** @test */
+    #[Test]
     public function should_not_do_anything_when_transitioning_to_same_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         $this->assertTrue($salesOrder->status()->is('pending'));
 
@@ -100,13 +98,13 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals(1, $salesOrder->status()->history()->count());
     }
 
-    /** @test */
+    #[Test]
     public function should_register_responsible_for_transition_when_specified()
     {
         //Arrange
-        $salesManager = factory(SalesManager::class)->create();
+        $salesManager = SalesManager::factory()->create();
 
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         //Act
         $salesOrder->status()->transitionTo('approved', [], $salesManager);
@@ -124,15 +122,15 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals(SalesManager::class, get_class($responsible));
     }
 
-    /** @test */
+    #[Test]
     public function should_register_auth_as_responsible_for_transition_when_available()
     {
         //Arrange
-        $salesManager = factory(SalesManager::class)->create();
+        $salesManager = SalesManager::factory()->create();
 
         $this->actingAs($salesManager);
 
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         //Act
         $salesOrder->status()->transitionTo('approved');
@@ -146,11 +144,11 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals(SalesManager::class, get_class($responsible));
     }
 
-    /** @test */
+    #[Test]
     public function can_check_next_possible_transitions()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         $this->assertTrue($salesOrder->status()->is('pending'));
 
@@ -160,11 +158,11 @@ class HasStateMachinesTest extends TestCase
         $this->assertFalse($salesOrder->status()->canBe('declined'));
     }
 
-    /** @test */
+    #[Test]
     public function should_throw_exception_for_invalid_state_on_transition()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create([
+        $salesOrder = SalesOrder::factory()->create([
             'status' => 'approved',
         ]);
 
@@ -180,11 +178,11 @@ class HasStateMachinesTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function should_throw_exception_for_custom_validator_on_transition()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         $this->assertTrue($salesOrder->status()->is('pending'));
 
@@ -202,13 +200,13 @@ class HasStateMachinesTest extends TestCase
         }
     }
 
-    /** @test */
+    #[Test]
     public function should_record_history_when_transitioning_to_next_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
-        $this->assertTrue($salesOrder->status()->stateMachine()->recordHistory());
+        $this->assertTrue($salesOrder->status()->getStateMachine()->recordHistory());
 
         $this->assertEquals(1, $salesOrder->status()->history()->count());
 
@@ -221,7 +219,7 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals(2, $salesOrder->status()->history()->count());
     }
 
-    /** @test */
+    #[Test]
     public function should_record_history_when_creating_model()
     {
         //Arrange
@@ -232,7 +230,7 @@ class HasStateMachinesTest extends TestCase
         $this->assertTrue($stateMachine->recordHistory());
 
         //Act
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         //Assert
         $salesOrder->refresh();
@@ -240,16 +238,16 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals(1, $salesOrder->status()->history()->count());
     }
 
-    /** @test */
+    #[Test]
     public function should_save_auth_user_as_responsible_in_record_history_when_creating_model()
     {
         //Arrange
-        $salesManager = factory(SalesManager::class)->create();
+        $salesManager = SalesManager::factory()->create();
 
         $this->actingAs($salesManager);
 
         //Act
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         //Assert
         $salesOrder->refresh();
@@ -257,7 +255,7 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals($salesManager->id, $salesOrder->status()->responsible()->id);
     }
 
-    /** @test */
+    #[Test]
     public function should_not_record_history_when_creating_model_if_record_history_turned_off()
     {
         //Arrange
@@ -268,7 +266,7 @@ class HasStateMachinesTest extends TestCase
         $this->assertFalse($stateMachine->recordHistory());
 
         //Act
-        $salesOrder = factory(SalesOrder::class)->create([
+        $salesOrder = SalesOrder::factory()->create([
             'fulfillment' => 'pending',
         ]);
 
@@ -278,17 +276,17 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals(0, $salesOrder->fulfillment()->history()->count());
     }
 
-    /** @test */
+    #[Test]
     public function can_record_history_with_custom_properties_when_transitioning_to_next_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         //Act
         $comments = $this->faker->sentence;
 
         $salesOrder->status()->transitionTo('approved', [
-            'comments' => $comments
+            'comments' => $comments,
         ]);
 
         //Assert
@@ -299,11 +297,11 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals($comments, $salesOrder->status()->getCustomProperty('comments'));
     }
 
-    /** @test */
+    #[Test]
     public function can_check_if_previous_state_was_transitioned()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         //Act
         $salesOrder->status()->transitionTo('approved');
@@ -326,13 +324,13 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals(0, $salesOrder->status()->was('another_status'));
     }
 
-    /** @test */
+    #[Test]
     public function can_record_pending_transition()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
-        $salesManager = factory(SalesManager::class)->create();
+        $salesManager = SalesManager::factory()->create();
 
         //Act
         $customProperties = [
@@ -375,11 +373,11 @@ class HasStateMachinesTest extends TestCase
         $this->assertEquals($salesManager->id, $pendingTransition->responsible->id);
     }
 
-    /** @test */
+    #[Test]
     public function should_not_record_pending_transition_for_same_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         $this->assertTrue($salesOrder->status()->is('pending'));
 
@@ -393,11 +391,11 @@ class HasStateMachinesTest extends TestCase
         $this->assertNull($pendingTransition);
     }
 
-    /** @test */
+    #[Test]
     public function should_cancel_all_pending_transitions_when_transitioning_to_next_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         factory(PendingTransition::class)->times(5)->create([
             'field' => 'status',
@@ -424,11 +422,11 @@ class HasStateMachinesTest extends TestCase
         $this->assertTrue($salesOrder->fulfillment()->hasPendingTransitions());
     }
 
-    /** @test */
+    #[Test]
     public function should_throw_exception_for_invalid_state_on_postponed_transition()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
 
         //Act
         try {

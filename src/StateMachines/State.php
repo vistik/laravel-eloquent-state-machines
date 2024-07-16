@@ -1,140 +1,140 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\StateMachines;
 
 use Asantibanez\LaravelEloquentStateMachines\Exceptions\TransitionNotAllowedException;
 use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
 use Asantibanez\LaravelEloquentStateMachines\Models\StateHistory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Collection;
 
 /**
  * Class State
- * @package Asantibanez\LaravelEloquentStateMachines\StateMachines
+ *
  * @property string $state
  * @property StateMachine $stateMachine
  */
 class State
 {
-    public $state;
-    public $stateMachine;
+    private null|string $state;
 
-    public function __construct($state, $stateMachine)
+    private StateMachine $stateMachine;
+
+    public function __construct(null|string $state, StateMachine $stateMachine)
     {
         $this->state = $state;
         $this->stateMachine = $stateMachine;
     }
 
-    public function state()
+    public function getState(): null|string
     {
         return $this->state;
     }
 
-    public function stateMachine()
+    public function getStateMachine(): StateMachine
     {
         return $this->stateMachine;
     }
 
-    public function is($state)
+    public function is($state): bool
     {
         return $this->state === $state;
     }
 
-    public function isNot($state)
+    public function isNot($state): bool
     {
-        return !$this->is($state);
+        return ! $this->is($state);
     }
 
-    public function was($state)
+    public function was($state): bool
     {
         return $this->stateMachine->was($state);
     }
 
-    public function timesWas($state)
+    public function timesWas($state): int
     {
         return $this->stateMachine->timesWas($state);
     }
 
-    public function whenWas($state)
+    public function whenWas($state): null|Carbon
     {
         return $this->stateMachine->whenWas($state);
     }
 
-    public function snapshotWhen($state)
+    public function snapshotWhen($state): null|StateHistory
     {
         return $this->stateMachine->snapshotWhen($state);
     }
 
-    public function snapshotsWhen($state)
+    public function snapshotsWhen($state): Collection
     {
         return $this->stateMachine->snapshotsWhen($state);
     }
 
-    public function history()
+    public function history(): MorphMany
     {
         return $this->stateMachine->history();
     }
 
-    public function canBe($state)
+    public function canBe($state): bool
     {
-        return $this->stateMachine->canBe($from = $this->state, $to = $state);
+        return $this->stateMachine->canBe(from: $this->state, to: $state);
     }
 
-    public function pendingTransitions()
+    public function pendingTransitions(): MorphMany
     {
         return $this->stateMachine->pendingTransitions();
     }
 
-    public function hasPendingTransitions()
+    public function hasPendingTransitions(): bool
     {
         return $this->stateMachine->hasPendingTransitions();
     }
 
-    public function transitionTo($state, $customProperties = [], $responsible = null)
+    public function transitionTo($state, $customProperties = [], $responsible = null): void
     {
         $this->stateMachine->transitionTo(
-            $from = $this->state,
-            $to = $state,
-            $customProperties,
-            $responsible
+            from: $this->state,
+            to: $state,
+            customProperties: $customProperties,
+            responsible: $responsible
         );
     }
 
     /**
-     * @param $state
-     * @param Carbon $when
-     * @param array $customProperties
-     * @param null $responsible
-     * @return null|PendingTransition
+     * @param  null  $responsible
+     *
      * @throws TransitionNotAllowedException
      */
-    public function postponeTransitionTo($state, Carbon $when, $customProperties = [], $responsible = null) : ?PendingTransition
+    public function postponeTransitionTo(string $state, Carbon $when, array $customProperties = [], null|Model $responsible = null): null|PendingTransition
     {
         return $this->stateMachine->postponeTransitionTo(
-            $from = $this->state,
-            $to = $state,
-            $when,
-            $customProperties,
-            $responsible
+            from: $this->state,
+            to: $state,
+            when: $when,
+            customProperties: $customProperties,
+            responsible: $responsible
         );
     }
 
-    public function latest() : ?StateHistory
+    public function latest(): null|StateHistory
     {
         return $this->snapshotWhen($this->state);
     }
 
-    public function getCustomProperty($key)
+    public function getCustomProperty($key): string
     {
         return optional($this->latest())->getCustomProperty($key);
     }
 
-    public function responsible()
+    public function responsible(): Model
     {
         return optional($this->latest())->responsible;
     }
 
-    public function allCustomProperties()
+    public function allCustomProperties(): array
     {
         return optional($this->latest())->allCustomProperties();
     }

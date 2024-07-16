@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders;
-
 
 use Asantibanez\LaravelEloquentStateMachines\StateMachines\StateMachine;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs\StartSalesOrderFulfillmentJob;
@@ -26,12 +24,12 @@ class FulfillmentStateMachine extends StateMachine
         ];
     }
 
-    public function defaultState(): ?string
+    public function defaultState(): null|string
     {
         return null;
     }
 
-    public function validatorForTransition($from, $to, $model): ?Validator
+    public function validatorForTransition($from, $to, $model): null|Validator
     {
         if ($from === null && $to === 'pending') {
             return ValidatorFacade::make([

@@ -3,11 +3,13 @@
 namespace Asantibanez\LaravelEloquentStateMachines\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Class StateHistory
- * @package Asantibanez\LaravelEloquentStateMachines\Models
+ *
  * @property string $field
  * @property string $from
  * @property string $to
@@ -27,42 +29,42 @@ class StateHistory extends Model
         'changed_attributes' => 'array',
     ];
 
-    public function getCustomProperty($key)
+    public function getCustomProperty(string $key)
     {
         return data_get($this->custom_properties, $key, null);
     }
 
-    public function responsible()
+    public function responsible(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function allCustomProperties()
+    public function allCustomProperties(): array
     {
         return $this->custom_properties ?? [];
     }
 
-    public function changedAttributesNames()
+    public function changedAttributesNames(): array
     {
         return collect($this->changed_attributes ?? [])->keys()->toArray();
     }
 
-    public function changedAttributeOldValue($attribute)
+    public function changedAttributeOldValue(string $attribute): mixed
     {
         return data_get($this->changed_attributes, "$attribute.old", null);
     }
 
-    public function changedAttributeNewValue($attribute)
+    public function changedAttributeNewValue(string $attribute): mixed
     {
         return data_get($this->changed_attributes, "$attribute.new", null);
     }
 
-    public function scopeForField($query, $field)
+    public function scopeForField($query, $field): void
     {
         $query->where('field', $field);
     }
 
-    public function scopeFrom($query, $from)
+    public function scopeFrom(Builder $query, $from): void
     {
         if (is_array($from)) {
             $query->whereIn('from', $from);
@@ -71,12 +73,12 @@ class StateHistory extends Model
         }
     }
 
-    public function scopeTransitionedFrom($query, $from)
+    public function scopeTransitionedFrom(Builder $query, $from): void
     {
         $query->from($from);
     }
 
-    public function scopeTo($query, $to)
+    public function scopeTo(Builder $query, $to): void
     {
         if (is_array($to)) {
             $query->whereIn('to', $to);
@@ -85,30 +87,26 @@ class StateHistory extends Model
         }
     }
 
-    public function scopeTransitionedTo($query, $to)
+    public function scopeTransitionedTo(Builder $query, array|string $to)
     {
         $query->to($to);
     }
 
-    public function scopeWithTransition($query, $from, $to)
+    public function scopeWithTransition(Builder $query, string $from, array|string $to)
     {
         $query->from($from)->to($to);
     }
 
-    public function scopeWithCustomProperty($query, $key, $operator, $value = null)
+    public function scopeWithCustomProperty(Builder $query, string $key, string $operator, null|string $value = null)
     {
         $query->where("custom_properties->{$key}", $operator, $value);
     }
 
-    public function scopeWithResponsible($query, $responsible)
+    public function scopeWithResponsible(Builder $query, Model $responsible)
     {
-        if ($responsible instanceof Model) {
-            return $query
-                ->where('responsible_id', $responsible->getKey())
-                ->where('responsible_type', get_class($responsible))
-            ;
-        }
+        return $query
+            ->where('responsible_id', $responsible->getKey())
+            ->where('responsible_type', $responsible->getMorphClass());
 
-        return $query->where('responsible_id', $responsible);
     }
 }

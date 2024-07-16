@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders;
-
 
 use Asantibanez\LaravelEloquentStateMachines\StateMachines\StateMachine;
 
@@ -20,7 +18,7 @@ class StatusAnyToAnyStateMachine extends StateMachine
         ];
     }
 
-    public function defaultState(): ?string
+    public function defaultState(): null|string
     {
         return 'new';
     }

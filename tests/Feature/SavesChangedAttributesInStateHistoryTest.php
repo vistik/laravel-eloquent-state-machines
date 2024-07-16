@@ -7,13 +7,14 @@ use Asantibanez\LaravelEloquentStateMachines\Tests\TestCase;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 
 class SavesChangedAttributesInStateHistoryTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
 
-    /** @test */
+    #[Test]
     public function should_save_changed_attributes_when_transitioning_state()
     {
         //Arrange
@@ -50,7 +51,7 @@ class SavesChangedAttributesInStateHistoryTest extends TestCase
         $this->assertEquals('approved', $lastStateTransition->changedAttributeNewValue('status'));
     }
 
-    /** @test */
+    #[Test]
     public function should_save_changed_attributes_on_initial_state()
     {
         //Act

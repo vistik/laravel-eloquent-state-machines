@@ -14,9 +14,11 @@ class SalesOrder extends Model
     use HasFactory;
     use HasStateMachines;
 
+    protected $table = 'sales_orders';
+
     protected $guarded = [];
 
-    public $stateMachines = [
+    public array $stateMachines = [
         'status' => StatusStateMachine::class,
         'fulfillment' => FulfillmentStateMachine::class,
     ];

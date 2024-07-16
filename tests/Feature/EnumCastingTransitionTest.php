@@ -2,6 +2,7 @@
 
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\Feature;
 
+use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestCase;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestEnums\StatusEnum;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrderWithEnumCasting;

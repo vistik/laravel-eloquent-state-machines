@@ -38,17 +38,17 @@ abstract class StateMachine
         return $this->model->stateHistory()->forField($this->field);
     }
 
-    public function was($state): bool
+    public function was(string|UnitEnum $state): bool
     {
         return $this->history()->to($state)->exists();
     }
 
-    public function timesWas($state): int
+    public function timesWas(string|UnitEnum $state): int
     {
         return $this->history()->to($state)->count();
     }
 
-    public function whenWas($state): null|Carbon
+    public function whenWas(string|UnitEnum $state): null|Carbon
     {
         $stateHistory = $this->snapshotWhen($state);
 
@@ -56,17 +56,17 @@ abstract class StateMachine
 
     }
 
-    public function snapshotWhen(string $state): null|StateHistory
+    public function snapshotWhen(string|UnitEnum $state): null|StateHistory
     {
         return $this->history()->to($state)->latest('id')->first();
     }
 
-    public function snapshotsWhen($state): Collection
+    public function snapshotsWhen(string|UnitEnum $state): Collection
     {
         return $this->history()->to($state)->get();
     }
 
-    public function canBe($from, $to): bool
+    public function canBe(null|string|UnitEnum $from, string|UnitEnum $to): bool
     {
         $availableTransitions = $this->transitions()[$from] ?? [];
 
@@ -83,18 +83,16 @@ abstract class StateMachine
         return $this->pendingTransitions()->notApplied()->exists();
     }
 
-    public function normalizeCasting($state)
+    public function normalizeCasting(null|string|UnitEnum $state)
     {
         return $state instanceof UnitEnum ? $state->value : $state;
     }
 
     /**
-     * @param  null|mixed  $responsible
-     *
      * @throws TransitionNotAllowedException
      * @throws ValidationException
      */
-    public function transitionTo(string|null|UnitEnum $from, string $to, array $customProperties = [], null|Model $responsible = null): void
+    public function transitionTo(string|null|UnitEnum $from, string|UnitEnum $to, array $customProperties = [], null|Model $responsible = null): void
     {
         $from = $this->normalizeCasting($from);
         $to = $this->normalizeCasting($to);
@@ -143,12 +141,9 @@ abstract class StateMachine
     }
 
     /**
-     * @param  array  $customProperties
-     * @param  null  $responsible
-     *
      * @throws TransitionNotAllowedException
      */
-    public function postponeTransitionTo($from, $to, Carbon $when, $customProperties = [], $responsible = null): null|PendingTransition
+    public function postponeTransitionTo(null|string|UnitEnum $from, string|UnitEnum $to, Carbon $when, $customProperties = [], $responsible = null): null|PendingTransition
     {
         $from = $this->normalizeCasting($from);
         $to = $this->normalizeCasting($to);
@@ -157,7 +152,7 @@ abstract class StateMachine
             return null;
         }
 
-        if (! $this->canBe($from, $to)) {
+        if (! $this->canBe(from: $from, to: $to)) {
             throw new TransitionNotAllowedException($from, $to, get_class($this->model));
         }
 
@@ -173,7 +168,7 @@ abstract class StateMachine
         );
     }
 
-    public function cancelAllPendingTransitions()
+    public function cancelAllPendingTransitions(): void
     {
         $this->pendingTransitions()->delete();
     }
@@ -184,7 +179,7 @@ abstract class StateMachine
 
     abstract public function recordHistory(): bool;
 
-    public function validatorForTransition($from, $to, $model): null|Validator
+    public function validatorForTransition(null|string|UnitEnum $from, string|UnitEnum $to, Model $model): null|Validator
     {
         return null;
     }

@@ -31,3 +31,6 @@ jobs:
 
       - name: Run tests
         run: ./vendor/bin/phpunit
+
+      - name: Run laravel Pint
+        run: ./vendor/bin/pint --test

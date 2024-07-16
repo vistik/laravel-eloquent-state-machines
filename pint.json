@@ -1,0 +1,8 @@
+{
+  "preset": "laravel",
+  "rules": {
+    "nullable_type_declaration": {
+      "syntax": "union"
+    }
+  }
+}

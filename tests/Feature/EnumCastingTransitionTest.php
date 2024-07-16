@@ -19,19 +19,14 @@ class EnumCastingTransitionTest extends TestCase
     {
         //Arrange
         $salesOrder = SalesOrderWithEnumCasting::create();
-
         $this->assertTrue($salesOrder->status()->is(StatusEnum::PENDING));
-
         $this->assertEquals(StatusEnum::PENDING, $salesOrder->status);
 
         //Act
         $salesOrder->status()->transitionTo(StatusEnum::APPROVED);
 
         //Assert
-        $salesOrder->refresh();
-
         $this->assertTrue($salesOrder->status()->is(StatusEnum::APPROVED));
-
         $this->assertEquals(StatusEnum::APPROVED, $salesOrder->status);
     }
 
@@ -40,9 +35,7 @@ class EnumCastingTransitionTest extends TestCase
     {
         //Arrange
         $salesOrder = SalesOrderWithEnumCasting::create();
-
         $this->assertTrue($salesOrder->status()->is(StatusEnum::PENDING));
-
         $this->assertEquals(StatusEnum::PENDING, $salesOrder->status);
 
         //Act
@@ -50,24 +43,15 @@ class EnumCastingTransitionTest extends TestCase
 
         //Assert
         $this->assertNotNull($pendingTransition);
-
-        $salesOrder->refresh();
-
         $this->assertTrue($salesOrder->status()->is('pending'));
-
         $this->assertTrue($salesOrder->status()->hasPendingTransitions());
-
         /** @var PendingTransition $pendingTransition */
         $pendingTransition = $salesOrder->status()->pendingTransitions()->first();
-
         $this->assertEquals('status', $pendingTransition->field);
         $this->assertEquals('pending', $pendingTransition->from);
         $this->assertEquals('approved', $pendingTransition->to);
-
         $this->assertEquals(Carbon::tomorrow()->startOfDay(), $pendingTransition->transition_at);
-
         $this->assertNull($pendingTransition->applied_at);
-
         $this->assertEquals($salesOrder->id, $pendingTransition->model->id);
     }
 
@@ -76,21 +60,15 @@ class EnumCastingTransitionTest extends TestCase
     {
         //Arrange
         $salesOrder = SalesOrderWithEnumCasting::create();
-
         $this->assertTrue($salesOrder->status()->is(StatusEnum::PENDING));
-
         $this->assertEquals(StatusEnum::PENDING, $salesOrder->status);
 
         //Act
         $salesOrder->status()->transitionTo(StatusEnum::APPROVED);
 
         //Assert
-        $salesOrder->refresh();
-
         $this->assertTrue($salesOrder->status()->is(StatusEnum::APPROVED));
-
         $this->assertEquals(StatusEnum::APPROVED, $salesOrder->status);
-
         $this->assertTrue($salesOrder->status()->was(StatusEnum::PENDING));
     }
 }

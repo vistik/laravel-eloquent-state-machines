@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestEnums;
 
 enum StatusEnum: string

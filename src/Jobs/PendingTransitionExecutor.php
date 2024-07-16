@@ -14,14 +14,14 @@ class PendingTransitionExecutor implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $pendingTransition;
+    public PendingTransition $pendingTransition;
 
     public function __construct(PendingTransition $pendingTransition)
     {
         $this->pendingTransition = $pendingTransition;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $field = $this->pendingTransition->field;
         $model = $this->pendingTransition->model;

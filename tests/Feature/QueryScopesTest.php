@@ -7,23 +7,24 @@ use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesManager;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 
 class QueryScopesTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
 
-    /** @test */
+    #[Test]
     public function can_get_models_with_transition_responsible_model()
     {
         //Arrange
-        $salesManager = factory(SalesManager::class)->create();
+        $salesManager = SalesManager::factory()->create();
 
-        $anotherSalesManager = factory(SalesManager::class)->create();
+        $anotherSalesManager = SalesManager::factory()->create();
 
-        factory(SalesOrder::class)->create()->status()->transitionTo('approved', [], $salesManager);
-        factory(SalesOrder::class)->create()->status()->transitionTo('approved', [], $salesManager);
-        factory(SalesOrder::class)->create()->status()->transitionTo('approved', [], $anotherSalesManager);
+        SalesOrder::factory()->create()->status()->transitionTo('approved', [], $salesManager);
+        SalesOrder::factory()->create()->status()->transitionTo('approved', [], $salesManager);
+        SalesOrder::factory()->create()->status()->transitionTo('approved', [], $anotherSalesManager);
 
         //Act
         $salesOrders = SalesOrder::with([])
@@ -40,15 +41,15 @@ class QueryScopesTest extends TestCase
         });
     }
 
-    /** @test */
+    #[Test]
     public function can_get_models_with_specific_transition()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
         $salesOrder->status()->transitionTo('approved');
         $salesOrder->status()->transitionTo('processed');
 
-        $anotherSalesOrder = factory(SalesOrder::class)->create();
+        $anotherSalesOrder = SalesOrder::factory()->create();
         $anotherSalesOrder->status()->transitionTo('approved');
 
         //Act
@@ -64,15 +65,15 @@ class QueryScopesTest extends TestCase
         $this->assertEquals($salesOrder->id, $salesOrders->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_models_with_specific_transition_to_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
         $salesOrder->status()->transitionTo('approved');
         $salesOrder->status()->transitionTo('processed');
 
-        $anotherSalesOrder = factory(SalesOrder::class)->create();
+        $anotherSalesOrder = SalesOrder::factory()->create();
         $anotherSalesOrder->status()->transitionTo('approved');
 
         //Act
@@ -88,19 +89,19 @@ class QueryScopesTest extends TestCase
         $this->assertEquals($salesOrder->id, $salesOrders->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_models_with_an_array_of_transition_to_states()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
         $salesOrder->status()->transitionTo('approved');
         $salesOrder->status()->transitionTo('processed');
 
-        $salesOrder2 = factory(SalesOrder::class)->create();
+        $salesOrder2 = SalesOrder::factory()->create();
         $salesOrder2->status()->transitionTo('waiting');
         $salesOrder2->status()->transitionTo('cancelled');
 
-        $anotherSalesOrder = factory(SalesOrder::class)->create();
+        $anotherSalesOrder = SalesOrder::factory()->create();
         $anotherSalesOrder->status()->transitionTo('approved');
 
         //Act
@@ -117,15 +118,15 @@ class QueryScopesTest extends TestCase
         $this->assertEquals($salesOrder2->id, $salesOrders[1]->id);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_models_with_specific_transition_from_state()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
         $salesOrder->status()->transitionTo('approved');
         $salesOrder->status()->transitionTo('processed');
 
-        $anotherSalesOrder = factory(SalesOrder::class)->create();
+        $anotherSalesOrder = SalesOrder::factory()->create();
         $anotherSalesOrder->status()->transitionTo('approved');
 
         //Act
@@ -141,18 +142,18 @@ class QueryScopesTest extends TestCase
         $this->assertEquals($salesOrder->id, $salesOrders->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_models_with_an_array_of_transition_from_states()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
         $salesOrder->status()->transitionTo('approved');
         $salesOrder->status()->transitionTo('processed');
 
-        $anotherSalesOrder = factory(SalesOrder::class)->create();
+        $anotherSalesOrder = SalesOrder::factory()->create();
         $anotherSalesOrder->status()->transitionTo('approved');
 
-        $anotherSalesOrder2 = factory(SalesOrder::class)->create();
+        $anotherSalesOrder2 = SalesOrder::factory()->create();
         $anotherSalesOrder2->status()->transitionTo('waiting');
         $anotherSalesOrder2->status()->transitionTo('cancelled');
 
@@ -170,14 +171,14 @@ class QueryScopesTest extends TestCase
         $this->assertEquals($anotherSalesOrder2->id, $salesOrders[1]->id);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_models_with_specific_transition_custom_property()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
         $salesOrder->status()->transitionTo('approved', ['comments' => 'Checked']);
 
-        $anotherSalesOrder = factory(SalesOrder::class)->create();
+        $anotherSalesOrder = SalesOrder::factory()->create();
         $anotherSalesOrder->status()->transitionTo('approved', ['comments' => 'Needs further revision']);
 
         //Act
@@ -193,15 +194,15 @@ class QueryScopesTest extends TestCase
         $this->assertEquals($salesOrder->id, $salesOrders->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function can_get_models_using_multiple_state_machines_transitions()
     {
         //Arrange
-        $salesOrder = factory(SalesOrder::class)->create();
+        $salesOrder = SalesOrder::factory()->create();
         $salesOrder->status()->transitionTo('approved');
         $salesOrder->status()->transitionTo('processed');
 
-        $anotherSalesOrder = factory(SalesOrder::class)->create();
+        $anotherSalesOrder = SalesOrder::factory()->create();
         $anotherSalesOrder->status()->transitionTo('approved');
 
         //Act

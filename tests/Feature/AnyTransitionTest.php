@@ -8,13 +8,14 @@ use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrderWithFrom
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrderWithToAny;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 
 class AnyTransitionTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
 
-    /** @test */
+    #[Test]
     public function can_transition_to_any_state()
     {
         //Arrange
@@ -35,7 +36,7 @@ class AnyTransitionTest extends TestCase
         $this->assertEquals('approved', $salesOrder->status);
     }
 
-    /** @test */
+    #[Test]
     public function can_transition_from_any_state()
     {
         //Arrange
@@ -56,7 +57,7 @@ class AnyTransitionTest extends TestCase
         $this->assertEquals('approved', $salesOrder->status);
     }
 
-    /** @test */
+    #[Test]
     public function can_transition_from_any_to_any_state()
     {
         //Arrange

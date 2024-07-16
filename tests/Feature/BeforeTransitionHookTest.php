@@ -7,6 +7,7 @@ use Asantibanez\LaravelEloquentStateMachines\Tests\TestJobs\BeforeTransitionJob;
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestModels\SalesOrderWithBeforeTransitionHook;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Queue;
 
 class BeforeTransitionHookTest extends TestCase
@@ -14,7 +15,7 @@ class BeforeTransitionHookTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    /** @test */
+    #[Test]
     public function should_call_before_transition_hooks()
     {
         //Arrange
@@ -37,7 +38,7 @@ class BeforeTransitionHookTest extends TestCase
         Queue::assertPushed(BeforeTransitionJob::class);
     }
 
-    /** @test */
+    #[Test]
     public function should_not_call_before_transition_hooks_if_not_defined()
     {
         //Arrange

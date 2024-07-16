@@ -12,7 +12,7 @@ class MakeStateMachine extends GeneratorCommand
 
     protected $type = 'StateMachine';
 
-    protected function getStub()
+    protected function getStub(): string
     {
         return __DIR__.'/stubs/StateMachine.php.stub';
     }

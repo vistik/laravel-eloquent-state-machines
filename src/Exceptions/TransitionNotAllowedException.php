@@ -3,16 +3,17 @@
 namespace Asantibanez\LaravelEloquentStateMachines\Exceptions;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 
 class TransitionNotAllowedException extends Exception
 {
-    protected $from;
+    protected string|null $from;
 
-    protected $to;
+    protected string $to;
 
-    protected $model;
+    protected string $model;
 
-    public function __construct($from, $to, $model)
+    public function __construct(string|null $from, string $to, string $model)
     {
         $this->from = $from;
         $this->to = $to;
@@ -21,17 +22,17 @@ class TransitionNotAllowedException extends Exception
         parent::__construct("Transition from '$from' to '$to' is not allowed for model '$model'", 422);
     }
 
-    public function getFrom()
+    public function getFrom(): string|null
     {
         return $this->from;
     }
 
-    public function getTo()
+    public function getTo(): string
     {
         return $this->to;
     }
 
-    public function getModel()
+    public function getModel(): string
     {
         return $this->model;
     }

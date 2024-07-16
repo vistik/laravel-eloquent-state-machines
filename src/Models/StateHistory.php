@@ -49,12 +49,12 @@ class StateHistory extends Model
         return collect($this->changed_attributes ?? [])->keys()->toArray();
     }
 
-    public function changedAttributeOldValue(string $attribute)
+    public function changedAttributeOldValue(string $attribute): mixed
     {
         return data_get($this->changed_attributes, "$attribute.old", null);
     }
 
-    public function changedAttributeNewValue(string $attribute)
+    public function changedAttributeNewValue(string $attribute): mixed
     {
         return data_get($this->changed_attributes, "$attribute.new", null);
     }

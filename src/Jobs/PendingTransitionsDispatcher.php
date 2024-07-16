@@ -13,7 +13,7 @@ class PendingTransitionsDispatcher implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function handle()
+    public function handle(): void
     {
         PendingTransition::with(['model'])
             ->notApplied()

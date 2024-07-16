@@ -7,6 +7,7 @@ use Asantibanez\LaravelEloquentStateMachines\Models\StateHistory;
 use Asantibanez\LaravelEloquentStateMachines\StateMachines\State;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 use Javoscript\MacroableModels\Facades\MacroableModels;
 
@@ -65,7 +66,7 @@ trait HasStateMachines
             collect($model->stateMachines)
                 ->each(function ($_, $field) use ($model) {
                     $currentState = $model->$field;
-                    $stateMachine = $model->$field()->stateMachine();
+                    $stateMachine = $model->$field()->getStateMachine();
 
                     if ($currentState === null) {
                         return;
@@ -98,7 +99,7 @@ trait HasStateMachines
             ->toArray();
     }
 
-    public function initStateMachines()
+    public function initStateMachines(): void
     {
         collect($this->stateMachines)
             ->each(function ($stateMachineClass, $field) {
@@ -108,12 +109,12 @@ trait HasStateMachines
             });
     }
 
-    public function stateHistory()
+    public function stateHistory(): MorphMany
     {
         return $this->morphMany(StateHistory::class, 'model');
     }
 
-    public function pendingTransitions()
+    public function pendingTransitions(): MorphMany
     {
         return $this->morphMany(PendingTransition::class, 'model');
     }

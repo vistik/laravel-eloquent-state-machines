@@ -7,40 +7,42 @@ use Asantibanez\LaravelEloquentStateMachines\Models\PendingTransition;
 use Asantibanez\LaravelEloquentStateMachines\Models\StateHistory;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 abstract class StateMachine
 {
-    public $field;
+    public string $field;
 
-    public $model;
+    public Model $model;
 
-    public function __construct($field, &$model)
+    public function __construct(string $field, Model $model)
     {
         $this->field = $field;
 
         $this->model = $model;
     }
 
-    public function currentState()
+    public function currentState(): string|null
     {
         $field = $this->field;
 
         return $this->model->$field;
     }
 
-    public function history()
+    public function history(): MorphMany
     {
         return $this->model->stateHistory()->forField($this->field);
     }
 
-    public function was($state)
+    public function was($state): bool
     {
         return $this->history()->to($state)->exists();
     }
 
-    public function timesWas($state)
+    public function timesWas($state): int
     {
         return $this->history()->to($state)->count();
     }
@@ -49,14 +51,11 @@ abstract class StateMachine
     {
         $stateHistory = $this->snapshotWhen($state);
 
-        if ($stateHistory === null) {
-            return null;
-        }
+        return $stateHistory?->created_at;
 
-        return $stateHistory->created_at;
     }
 
-    public function snapshotWhen($state): ?StateHistory
+    public function snapshotWhen(string $state): ?StateHistory
     {
         return $this->history()->to($state)->latest('id')->first();
     }
@@ -66,19 +65,19 @@ abstract class StateMachine
         return $this->history()->to($state)->get();
     }
 
-    public function canBe($from, $to)
+    public function canBe($from, $to): bool
     {
         $availableTransitions = $this->transitions()[$from] ?? [];
 
         return collect($availableTransitions)->contains($to);
     }
 
-    public function pendingTransitions()
+    public function pendingTransitions(): MorphMany
     {
         return $this->model->pendingTransitions()->forField($this->field);
     }
 
-    public function hasPendingTransitions()
+    public function hasPendingTransitions(): bool
     {
         return $this->pendingTransitions()->notApplied()->exists();
     }
@@ -90,7 +89,7 @@ abstract class StateMachine
      * @throws TransitionNotAllowedException
      * @throws ValidationException
      */
-    public function transitionTo($from, $to, $customProperties = [], $responsible = null)
+    public function transitionTo(string|null $from, string $to, array $customProperties = [], Model $responsible = null): void
     {
         if ($to === $this->currentState()) {
             return;

@@ -3,6 +3,7 @@
 namespace Asantibanez\LaravelEloquentStateMachines\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -45,17 +46,17 @@ class PendingTransition extends Model
         return $this->morphTo();
     }
 
-    public function scopeNotApplied($query): void
+    public function scopeNotApplied(Builder $query): void
     {
         $query->whereNull('applied_at');
     }
 
-    public function scopeOnScheduleOrOverdue($query): void
+    public function scopeOnScheduleOrOverdue(Builder $query): void
     {
         $query->where('transition_at', '<=', now());
     }
 
-    public function scopeForField($query, $field): void
+    public function scopeForField(Builder $query, string $field): void
     {
         $query->where('field', $field);
     }

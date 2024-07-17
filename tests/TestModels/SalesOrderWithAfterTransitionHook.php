@@ -3,18 +3,10 @@
 namespace Asantibanez\LaravelEloquentStateMachines\Tests\TestModels;
 
 use Asantibanez\LaravelEloquentStateMachines\Tests\TestStateMachines\SalesOrders\StatusWithAfterTransitionHookStateMachine;
-use Asantibanez\LaravelEloquentStateMachines\Traits\HasStateMachines;
-use Illuminate\Database\Eloquent\Model;
 
-class SalesOrderWithAfterTransitionHook extends Model
+class SalesOrderWithAfterTransitionHook extends SalesOrder
 {
-    use HasStateMachines;
-
-    protected $table = 'sales_orders';
-
-    protected $guarded = [];
-
-    public $stateMachines = [
+    public array $stateMachines = [
         'status' => StatusWithAfterTransitionHookStateMachine::class,
     ];
 }
